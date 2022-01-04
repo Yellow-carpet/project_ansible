@@ -1,0 +1,52 @@
+---
+# tasks file for docker_role
+#
+- name: "copy files"
+  template:
+    src: install_docker.sh.j2
+    dest: /home/{{ ansible_user }}/install_docker.sh
+- name: "run command"
+  command: "sh /home/{{ ansible_user }}/install_docker.sh"
+
+
+- name: "Enable & start docker"
+  service:
+    name: docker
+    state: started
+    enabled: yes
+  when: ansible_distribution == "CentOS"
+
+- name: "Add user to group docker"
+  user:
+    name: "{{ ansible_user }}"
+    append: yes
+    groups:
+      - docker
+
+# Install docker-py 
+
+- name : "Install epel-releases"
+  yum:
+    name: epel-release
+    state: present
+  when: ansible_distribution == "CentOS"
+
+- name: "download pip script"
+  get_url:
+    url: https://bootstrap.pypa.io/pip/2.7/get-pip.py
+    dest: /tmp/get-pip.py
+  when: ansible_distribution == "CentOS"
+
+- name: "install python-pip"
+  command: python2.7 /tmp/get-pip.py
+  when: ansible_distribution == "CentOS"
+
+- name: "install pip"
+  package:
+    name: python3-pip
+    state: present
+
+- name: "install docker.py module"
+  pip:
+    name: docker-py
+    state: present

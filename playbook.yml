@@ -1,0 +1,8 @@
+- name: run docker
+  hosts: worker01
+  
+  vars_files:
+  - files/secrets.yml
+  roles:
+    - docker_role
+    - wordpress_role
